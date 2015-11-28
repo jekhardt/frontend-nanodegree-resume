@@ -26,7 +26,7 @@ h6 {
 
 h1 {
   font-size: 40px;
-  color: #f5a623;
+  color: #0193f5;
   line-height: 48px;
   display: inline;
 }
@@ -61,6 +61,13 @@ h5 {
 
 }
 
+#education h3 {
+  padding: 25px 5% 5px 5%;
+}
+
+.education-entry a:last-child {
+  margin: 0;
+}
 
 .date-text {
   font-style: italic;
@@ -100,16 +107,16 @@ a {
 }
 
 #skills-h3 {
-  color: #f5ae23;
+  color: #0193f5;
   display: none;
 }
 
-.orange {
-  background-color: #f5ae23;
+.blue {
+  background-color: #0193f5;
 }
 
-.orange-text {
-  color: #f5ae23;
+.blue-text {
+  color: #0193f5;
 }
 
 .white-text {
@@ -149,12 +156,26 @@ ul {
   list-style-type: none;
 }
 
+.role {
+  color: #999999;
+}
+
 .biopic {
   float: left;
   padding: 10px;
   width: 200px;
   display: none;
 }
+
+#projects.flex-box {
+    justify-content: flex-start;
+}
+.project-entry {
+  max-width: 380px;
+  max-height: 380px;
+  margin: auto;
+}
+
 
 img {
   padding: 10px;
@@ -166,6 +187,10 @@ span {
 
 #lets-connect {
   text-align: center;
+}
+
+#lets-connect h2 {
+  color: #ffffff;
 }
 
 /* Media queries to handle various device widths */
@@ -220,5 +245,5 @@ span {
   font-weight: bold;
 }
 .info-item {
-  margin: 0px 5px;
+  margin: 0 5px;
 }
