@@ -212,3 +212,13 @@ span {
     display: block;
   }
 }
+
+.info {
+  padding: 5px;
+}
+.info-title {
+  font-weight: bold;
+}
+.info-item {
+  margin: 0px 5px;
+}

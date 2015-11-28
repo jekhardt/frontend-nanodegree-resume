@@ -1,17 +1,6 @@
 /*
-
-This file contains all of the code running in the background that makes resumeBuilder.js possible. We call these helper functions because they support your code in this course.
-
-Don't worry, you'll learn what's going on in this file throughout the course. You won't need to make any changes to it until you start experimenting with inserting a Google Map in Problem Set 3.
-
-Cameron Pittman
-*/
-
-
-/*
-These are HTML strings. As part of the course, you'll be using JavaScript functions
-replace the %data% placeholder text you see in them.
-*/
+HTML data helpers
+ */
 var HTMLheaderName = '<h1 id="name">%data%</h1>';
 var HTMLheaderRole = '<span>%data%</span><hr/>';
 
@@ -85,7 +74,7 @@ function logClicks(x,y) {
 }
 
 $(document).click(function(loc) {
-  // your code goes here!
+  logClicks(loc.pageX, loc.pageY);
 });
 
 
@@ -104,6 +93,16 @@ Start here! initializeMap() is called when page is loaded.
 function initializeMap() {
 
   var locations;
+
+  /*
+   * Location data lookup for map marker info windows
+   */
+  var locationData = {};
+
+  function addLocationData(location, data) {
+    if (!locationData.hasOwnProperty(location)) locationData[location]= [];
+    locationData[location].push(data);
+  }
 
   var mapOptions = {
     disableDefaultUI: true
@@ -127,18 +126,21 @@ function initializeMap() {
 
     // adds the single location property from bio to the locations array
     locations.push(bio.contacts.location);
+    addLocationData(bio.contacts.location, 'Home Base');
 
     // iterates through school locations and appends each location to
     // the locations array
-    for (var school in education.schools) {
-      locations.push(education.schools[school].location);
-    }
+    education.schools.forEach(function(school) {
+      locations.push(school.location);
+      addLocationData(school.location, 'School - ' + school.name);
+    });
 
     // iterates through work locations and appends each location to
     // the locations array
-    for (var job in work.jobs) {
-      locations.push(work.jobs[job].location);
-    }
+    work.jobs.forEach(function(job) {
+      locations.push(job.location);
+      addLocationData(job.location, 'Work - ' + job.employer + ' - ' + job.title);
+    });
 
     return locations;
   }
@@ -166,13 +168,29 @@ function initializeMap() {
     // infoWindows are the little helper windows that open when you click
     // or hover over a pin on a map. They usually contain more information
     // about a location.
+    var data = '<div class="info">' + '<span class="info-title">' + name + '</span><br>';
+    placeData.data.forEach(function(value) {
+      data += '<br><span class="info-item">' + value + '</span>';
+    });
+    data += '</div>';
     var infoWindow = new google.maps.InfoWindow({
-      content: name
+      content: data
     });
 
-    // hmmmm, I wonder what this is about...
+    // Click marker to open info window
     google.maps.event.addListener(marker, 'click', function() {
-      // your code goes here!
+      infoWindow.open(map, marker);
+
+      // Transition from blue when opening marker
+      d3.selectAll('.info').each(function() {
+        var parentDiv = $(this).parents('div')[3];
+        d3.select(parentDiv)
+          .transition()
+          .duration(1000)
+          .styleTween('background-color', function() {
+            return d3.interpolate('#0000ff', '#ffffff');
+          });
+      });
     });
 
     // this is where the pin actually gets added to the map.
@@ -204,17 +222,43 @@ function initializeMap() {
     // actually searching for location data.
     var service = new google.maps.places.PlacesService(map);
 
-    // Iterates through the array of locations, creates a search object for each location
-    for (var place in locations) {
+    // Track whether a location needs to be retried on an interval due to Google Maps request quota
+    var retryInterval = {};
 
+    // Iterates through the array of locations, creates a search object for each location
+    for (var place = 0; place < locations.length; place++) {
       // the search request object
       var request = {
         query: locations[place]
       };
 
+      function callbackWithRetry(service, request, index) {
+        retryInterval[index] = retryInterval[index] || false;
+        var retry = function() {
+          var intervalCallback = function() {
+            service.textSearch(request, callbackWithRetry(service, request, index))
+          };
+          retryInterval[index] = setInterval(intervalCallback, 50);
+        };
+        return function(results, status) {
+          if (status == google.maps.places.PlacesServiceStatus.OK) {
+            if (retryInterval.hasOwnProperty(index) && retryInterval[index] !== false) {
+              clearInterval(retryInterval[index]);
+              retryInterval[index] = undefined;
+            }
+            // Add details about location
+            results[0].data = locationData[request.query];
+
+            createMapMarker(results[0]);
+          } else {
+            if (retryInterval[index] === false) retry();
+          }
+        };
+      }
+
       // Actually searches the Google Maps API for location data and runs the callback
       // function with the search results after each search.
-      service.textSearch(request, callback);
+      service.textSearch(request, callbackWithRetry(service, request, place));
     }
   }
 
@@ -230,16 +274,12 @@ function initializeMap() {
 
 }
 
-/*
-Uncomment the code below when you're ready to implement a Google Map!
-*/
-
 // Calls the initializeMap() function when the page loads
-//window.addEventListener('load', initializeMap);
+window.addEventListener('load', initializeMap);
 
 // Vanilla JS way to listen for resizing of the window
 // and adjust map bounds
-//window.addEventListener('resize', function(e) {
-  //Make sure the map bounds get updated on page resize
-//  map.fitBounds(mapBounds);
-//});
+window.addEventListener('resize', function(e) {
+  // Make sure the map bounds get updated on page resize
+  map.fitBounds(mapBounds);
+});
