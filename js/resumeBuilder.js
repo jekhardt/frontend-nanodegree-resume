@@ -22,7 +22,7 @@ var bio = {
     "test frameworks: junit, testng, cucumber, rspec, mocha, abao",
     "test tools: selenium, protractor, capybara, jmeter",
     "databases: mysql, oracle, postgres, mssql",
-    "vmware: vsphere, view, vcloud",
+    "virtualization: vmware, docker",
     "spring",
     "wordpress"
   ],
