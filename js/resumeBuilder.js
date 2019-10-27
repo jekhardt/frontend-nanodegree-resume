@@ -5,12 +5,12 @@ var bio = {
   name: "Jeff Ekhardt",
   role: "Web Developer",
   contacts: {
-    mobile: "650-444-1244",
-    email: "jeffekhardt@yahoo.com",
+    mobile: "650-349-1604",
+    email: "jeffekhardt@hotmail.com",
     github: "jekhardt",
     linkedin: "jeffekhardt",
     twitter: "@jekhardt",
-    location: "Milpitas, CA"
+    location: "Santa Clara, CA"
   },
   welcomeMessage: "Welcome!",
   skills: [
